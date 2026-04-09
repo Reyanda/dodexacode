@@ -37,4 +37,4 @@ The core shell has no mandatory third-party service dependency. If an operator i
 
 ## Contact
 
-Replace before submission: `replace-before-submit@example.com`
+Contact: `techreyanda@gmail.com`

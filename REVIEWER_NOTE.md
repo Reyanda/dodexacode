@@ -27,15 +27,15 @@ Smoke tests:
 Run the shell:
 
 ```bash
-./.build/arm64-apple-macosx/debug/dodexabash
+./.build/arm64-apple-macosx/debug/dodexacode
 ```
 
 Run MCP server:
 
 ```bash
-./.build/arm64-apple-macosx/debug/dodexabash --mcp
+./.build/arm64-apple-macosx/debug/dodexacode --mcp
 # or
-swift run dodexabash --mcp
+swift run dodexacode --mcp
 ```
 
 ## Safety Posture

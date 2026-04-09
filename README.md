@@ -110,10 +110,10 @@ Every command execution automatically:
 
 ```bash
 swift build
-./.build/arm64-apple-macosx/debug/dodexabash           # interactive REPL on Apple Silicon
-./.build/arm64-apple-macosx/debug/dodexabash -c 'echo hello | tr a-z A-Z'
-./.build/arm64-apple-macosx/debug/dodexabash --mcp
-swift run dodexabash --mcp                             # portable MCP startup path
+./.build/arm64-apple-macosx/debug/dodexacode           # interactive REPL on Apple Silicon
+./.build/arm64-apple-macosx/debug/dodexacode -c 'echo hello | tr a-z A-Z'
+./.build/arm64-apple-macosx/debug/dodexacode --mcp
+swift run dodexacode --mcp                             # portable MCP startup path
 ./scripts/smoke-test.sh                                # feature and persistence smoke tests
 ```
 

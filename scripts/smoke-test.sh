@@ -4,9 +4,9 @@ set -euo pipefail
 project_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$project_root"
 
-binary="$project_root/.build/debug/dodexabash"
+binary="$project_root/.build/debug/dodexacode"
 if [[ ! -x "$binary" ]]; then
-  binary="$project_root/.build/arm64-apple-macosx/debug/dodexabash"
+  binary="$project_root/.build/arm64-apple-macosx/debug/dodexacode"
 fi
 if [[ ! -x "$binary" ]]; then
   echo "missing built binary: $binary" >&2

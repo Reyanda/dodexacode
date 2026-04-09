@@ -2,31 +2,34 @@
 import PackageDescription
 
 let package = Package(
-    name: "DodexaBash",
+    name: "DodexaCode",
     platforms: [
         .macOS(.v13)
     ],
     products: [
         .library(
-            name: "DodexaBashCore",
-            targets: ["DodexaBashCore"]
+            name: "DodexaCodeCore",
+            targets: ["DodexaCodeCore"]
         ),
         .executable(
-            name: "dodexabash",
-            targets: ["DodexaBash"]
+            name: "dodexacode",
+            targets: ["dodexacode"]
         )
     ],
     targets: [
         .target(
-            name: "DodexaBashCore"
+            name: "DodexaCodeCore",
+            path: "Sources/DodexaBashCore"
         ),
         .executableTarget(
-            name: "DodexaBash",
-            dependencies: ["DodexaBashCore"]
+            name: "dodexacode",
+            dependencies: ["DodexaCodeCore"],
+            path: "Sources/DodexaBash"
         ),
         .testTarget(
-            name: "DodexaBashCoreTests",
-            dependencies: ["DodexaBashCore"]
+            name: "DodexaCodeCoreTests",
+            dependencies: ["DodexaCodeCore"],
+            path: "Tests/DodexaBashCoreTests"
         )
     ]
 )

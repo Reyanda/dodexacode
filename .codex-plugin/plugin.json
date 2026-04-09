@@ -4,10 +4,10 @@
   "description": "AI-native Swift shell and MCP server with typed primitives, workspace context, and scoped security review tooling.",
   "author": {
     "name": "DodexaCode Maintainers",
-    "email": "replace-before-submit@example.com"
+    "email": "techreyanda@gmail.com"
   },
-  "homepage": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode",
-  "repository": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode",
+  "homepage": "https://github.com/Reyanda/dodexacode",
+  "repository": "https://github.com/Reyanda/dodexacode",
   "license": "MIT",
   "keywords": [
     "swift",
@@ -23,7 +23,7 @@
         "run",
         "--package-path",
         ".",
-        "dodexabash",
+        "dodexacode",
         "--mcp"
       ]
     }
@@ -39,9 +39,9 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode",
-    "privacyPolicyURL": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode/privacy",
-    "termsOfServiceURL": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode/terms",
+    "websiteURL": "https://github.com/Reyanda/dodexacode",
+    "privacyPolicyURL": "https://github.com/Reyanda/dodexacode/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/Reyanda/dodexacode/blob/main/TERMS.md",
     "defaultPrompt": [
       "Brief this workspace and suggest the next steps.",
       "Run a command through dodexabash and return structured output.",

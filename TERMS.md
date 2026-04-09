@@ -31,4 +31,4 @@ Operators are responsible for:
 
 ## Contact
 
-Replace before submission: `replace-before-submit@example.com`
+Contact: `techreyanda@gmail.com`

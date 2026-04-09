@@ -7,10 +7,12 @@ func runCommand(_ cmd: String) -> String {
     let process = Process()
     let fm = FileManager.default
     let candidates = [
+        "./.build/debug/dodexacode",
+        "./.build/arm64-apple-macosx/debug/dodexacode",
         "./.build/debug/dodexabash",
         "./.build/arm64-apple-macosx/debug/dodexabash"
     ]
-    let executable = candidates.first(where: { fm.isExecutableFile(atPath: $0) }) ?? candidates[1]
+    let executable = candidates.first(where: { fm.isExecutableFile(atPath: $0) }) ?? candidates[0]
     process.executableURL = URL(fileURLWithPath: executable)
     process.arguments = ["-c", cmd]
     let pipe = Pipe()

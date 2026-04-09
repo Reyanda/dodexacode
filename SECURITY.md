@@ -17,7 +17,7 @@ If you identify a security issue in DodexaCode:
 2. Provide a clear description, impacted component, reproduction steps, and expected impact.
 3. Include logs, stack traces, or sanitized artifacts where possible.
 
-Contact placeholder: `replace-before-submit@example.com`
+Contact: `techreyanda@gmail.com`
 
 ## Safe Testing Expectations
 

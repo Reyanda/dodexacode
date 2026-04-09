@@ -1,5 +1,5 @@
 import XCTest
-@testable import DodexaBashCore
+@testable import DodexaCodeCore
 
 final class ShellTests: XCTestCase {
 
