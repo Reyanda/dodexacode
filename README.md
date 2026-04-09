@@ -1,6 +1,12 @@
 # DodexaCode
 
+[![CI](https://github.com/Reyanda/dodexacode/actions/workflows/ci.yml/badge.svg)](https://github.com/Reyanda/dodexacode/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Swift 6.0+](https://img.shields.io/badge/Swift-6.0%2B-orange.svg)](Package.swift)
+
 DodexaCode is a Bash-inspired shell written in Swift, designed as a lightweight operator environment for humans and AI systems. It is clean-room, dependency-free, and includes local memory, workspace briefing, workflow cards, and 20 future-shell primitives as first-class runtime objects.
+
+Repository: `https://github.com/Reyanda/dodexacode`
 
 ## Dependency Policy
 

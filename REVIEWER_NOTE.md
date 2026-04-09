@@ -53,3 +53,4 @@ swift run dodexacode --mcp
 - Repository: `https://github.com/Reyanda/dodexacode`
 - Plugin manifest: `.codex-plugin/plugin.json`
 - CI workflow: `.github/workflows/ci.yml`
+- Submission note: `OPENAI_SUBMISSION.md`
