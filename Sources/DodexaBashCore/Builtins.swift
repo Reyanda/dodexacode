@@ -112,6 +112,36 @@ struct CapabilityCatalog: Encodable {
     let reviewerWalkthroughs: [ReviewerWalkthrough]
 }
 
+struct SubmissionArtifact: Encodable {
+    let name: String
+    let path: String
+    let present: Bool
+    let purpose: String
+}
+
+struct SubmissionEvidence: Encodable {
+    let claim: String
+    let evidence: String
+}
+
+struct SubmissionBundle: Encodable {
+    let target: String
+    let generatedAt: String
+    let product: String
+    let version: String
+    let repository: String
+    let compatibilityName: String
+    let summary: String
+    let differentiators: [String]
+    let reviewerCommands: [String]
+    let runtimeCommands: [String]
+    let safetyHighlights: [String]
+    let docs: [SubmissionArtifact]
+    let evidence: [SubmissionEvidence]
+    let doctor: DoctorReport
+    let catalog: CapabilityCatalog
+}
+
 enum Builtins {
     static func run(
         command: String,
@@ -174,6 +204,8 @@ enum Builtins {
             return doctorBuiltin(args: args, runtime: runtime)
         case "catalog":
             return catalogBuiltin(args: args, runtime: runtime)
+        case "submission":
+            return submissionBuiltin(args: args, runtime: runtime)
         case "exit":
             return exitBuiltin(args: args, context: runtime.context)
         case "artifact":
@@ -310,7 +342,7 @@ enum Builtins {
     private static let knownBuiltins: Set<String> = [
         "cd", "pwd", "echo", "env", "set", "export", "unset",
         "brief", "history", "predict", "workflow", "md", "skill",
-        "alias", "unalias", "function", "source", ".", "help", "doctor", "catalog", "exit",
+        "alias", "unalias", "function", "source", ".", "help", "doctor", "catalog", "submission", "exit",
         "artifact", "intent", "lease", "simulate", "prove",
         "entity", "attention", "policy", "world", "uncertainty",
         "repair", "delegate", "replay", "diff", "clear", "cls",
@@ -1787,6 +1819,60 @@ enum Builtins {
         }
     }
 
+    private static func submissionBuiltin(args: [String], runtime: BuiltinRuntime) -> CommandResult {
+        let jsonMode = args.contains("--json")
+        let filtered = args.filter { $0 != "--json" }
+        let sub = filtered.first ?? "show"
+        let normalizedSub: String
+        switch sub {
+        case "openai", "show", "bundle":
+            normalizedSub = "show"
+        case "write", "export":
+            normalizedSub = "write"
+        default:
+            normalizedSub = sub
+        }
+
+        let bundle = submissionBundle(runtime: runtime, target: "OpenAI")
+        if jsonMode && normalizedSub != "write" {
+            return jsonResult(bundle)
+        }
+
+        switch normalizedSub {
+        case "show":
+            return textResult(submissionMarkdown(bundle: bundle) + "\n")
+
+        case "write":
+            let pathArg = filtered.dropFirst().first { $0.lowercased() != "openai" }
+            let destination = resolveSubmissionDirectory(pathArg, runtime: runtime)
+            do {
+                try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let jsonData = try encoder.encode(bundle)
+                let markdownData = Data(submissionMarkdown(bundle: bundle).utf8)
+
+                let jsonURL = destination.appendingPathComponent("dodexacode-openai-bundle.json")
+                let markdownURL = destination.appendingPathComponent("dodexacode-openai-bundle.md")
+                try jsonData.write(to: jsonURL, options: .atomic)
+                try markdownData.write(to: markdownURL, options: .atomic)
+
+                let text = """
+                Wrote OpenAI submission bundle:
+                  JSON: \(jsonURL.path)
+                  Markdown: \(markdownURL.path)
+                """
+                return textResult(text + "\n")
+            } catch {
+                return textError("submission: \(error.localizedDescription)\n", status: 1)
+            }
+
+        default:
+            return textError("submission [openai|show|write [path]] [--json]\n", status: 1)
+        }
+    }
+
     static func doctorReport(runtime: BuiltinRuntime) -> DoctorReport {
         let fileManager = FileManager.default
         let stateRoot = stateRootPath(runtime: runtime)
@@ -1911,11 +1997,76 @@ enum Builtins {
                 SecurityModeDescriptor(name: $0.rawValue, summary: $0.summary)
             },
             mcpServerTransport: "stdio JSON-RPC",
-            mcpBuiltInToolCount: 35,
+            mcpBuiltInToolCount: 36,
             externalMcpConfiguredServers: statuses.count,
             externalMcpConnectedServers: statuses.filter(\.connected).count,
             externalMcpDiscoveredTools: runtime.mcpClient.allTools.count,
             reviewerWalkthroughs: reviewerWalkthroughs()
+        )
+    }
+
+    static func submissionBundle(runtime: BuiltinRuntime, target: String) -> SubmissionBundle {
+        let doctor = doctorReport(runtime: runtime)
+        let catalog = capabilityCatalog(runtime: runtime)
+        let root = URL(fileURLWithPath: runtime.context.currentDirectory)
+        let docs: [SubmissionArtifact] = [
+            SubmissionArtifact(name: "README", path: root.appendingPathComponent("README.md").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent("README.md").path), purpose: "Product overview and quickstart"),
+            SubmissionArtifact(name: "Reviewer Note", path: root.appendingPathComponent("REVIEWER_NOTE.md").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent("REVIEWER_NOTE.md").path), purpose: "Evaluator-focused verification instructions"),
+            SubmissionArtifact(name: "OpenAI Submission Note", path: root.appendingPathComponent("OPENAI_SUBMISSION.md").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent("OPENAI_SUBMISSION.md").path), purpose: "Submission summary and safety posture"),
+            SubmissionArtifact(name: "Plugin Manifest", path: root.appendingPathComponent(".codex-plugin/plugin.json").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent(".codex-plugin/plugin.json").path), purpose: "Install and MCP metadata"),
+            SubmissionArtifact(name: "Privacy Policy", path: root.appendingPathComponent("PRIVACY.md").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent("PRIVACY.md").path), purpose: "Privacy posture"),
+            SubmissionArtifact(name: "Terms", path: root.appendingPathComponent("TERMS.md").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent("TERMS.md").path), purpose: "Usage terms"),
+            SubmissionArtifact(name: "Security Policy", path: root.appendingPathComponent("SECURITY.md").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent("SECURITY.md").path), purpose: "Security reporting and operating posture"),
+            SubmissionArtifact(name: "CI Workflow", path: root.appendingPathComponent(".github/workflows/ci.yml").path, present: FileManager.default.fileExists(atPath: root.appendingPathComponent(".github/workflows/ci.yml").path), purpose: "Automated verification path")
+        ]
+
+        let evidence: [SubmissionEvidence] = [
+            SubmissionEvidence(claim: "Local-first operator runtime", evidence: "Dependency policy is stdlib/Foundation/Darwin only; `swift build` is the primary install path."),
+            SubmissionEvidence(claim: "Machine-readable MCP integration", evidence: "Run `swift run dodexacode --mcp`; built-in MCP surface currently exposes \(catalog.mcpBuiltInToolCount) tools."),
+            SubmissionEvidence(claim: "Reviewer-ready self-diagnostics", evidence: "Run `doctor` or `doctor --json` for persisted state, policy, workflow, and MCP readiness."),
+            SubmissionEvidence(claim: "Structured capability discovery", evidence: "Run `catalog reviewer` or `catalog --json` for command domains, walkthroughs, and security modes."),
+            SubmissionEvidence(claim: "Policy-gated security posture", evidence: "Security modes are explicit: passive, active, lab. Passive remains the default mode in the runtime.")
+        ]
+
+        return SubmissionBundle(
+            target: target,
+            generatedAt: ISO8601DateFormatter().string(from: Date()),
+            product: "DodexaCode",
+            version: "0.1.0",
+            repository: "https://github.com/Reyanda/dodexacode",
+            compatibilityName: catalog.compatibilityName,
+            summary: "DodexaCode is a clean-room Swift shell and MCP runtime with typed execution primitives, machine-readable self-description, and policy-gated security review workflows.",
+            differentiators: [
+                "No third-party Swift package dependencies.",
+                "Local readiness diagnostics via doctor.",
+                "Machine-readable capability catalog for agents and reviewers.",
+                "Typed future-shell primitives with persistence and proof surfaces.",
+                "Policy-gated defensive security workflows instead of stealth behavior."
+            ],
+            reviewerCommands: [
+                "swift build",
+                "./scripts/smoke-test.sh",
+                "./.build/arm64-apple-macosx/debug/dodexacode -c 'doctor'",
+                "./.build/arm64-apple-macosx/debug/dodexacode -c 'catalog reviewer'",
+                "swift run dodexacode --mcp"
+            ],
+            runtimeCommands: [
+                "brief .",
+                "doctor --json",
+                "catalog --json",
+                "policy set security mode:passive hard",
+                "sec intel analyze runtime"
+            ],
+            safetyHighlights: [
+                "Assessment modes are explicit and policy-driven.",
+                "Stealth routing and attribution masking are not part of the shell surface.",
+                "Threat intelligence is framed around defensive controls and validation.",
+                "Submission bundle includes auditable docs and evidence mapping."
+            ],
+            docs: docs,
+            evidence: evidence,
+            doctor: doctor,
+            catalog: catalog
         )
     }
 
@@ -1931,7 +2082,7 @@ enum Builtins {
     private static func capabilityCategories() -> [CapabilityCategory] {
         [
             CapabilityCategory(name: "shell", commands: ["cd", "pwd", "echo", "env", "export", "unset", "alias", "function", "source", "exit"]),
-            CapabilityCategory(name: "context", commands: ["brief", "history", "predict", "workflow", "md", "status", "doctor", "catalog"]),
+            CapabilityCategory(name: "context", commands: ["brief", "history", "predict", "workflow", "md", "status", "doctor", "catalog", "submission"]),
             CapabilityCategory(name: "future-runtime", commands: ["intent", "lease", "simulate", "prove", "attention", "policy", "world", "uncertainty", "repair", "delegate", "replay", "artifact", "entity", "diff semantic"]),
             CapabilityCategory(name: "integration", commands: ["mcp", "tools", "blocks", "jobs", "git", "index", "browse", "search"]),
             CapabilityCategory(name: "security", commands: ["sec", "policy set security mode:passive", "policy set security mode:active", "policy set security mode:lab"])
@@ -1983,8 +2134,88 @@ enum Builtins {
                     "mirror-defense analysis",
                     "request-path or system detection report"
                 ]
+            ),
+            ReviewerWalkthrough(
+                name: "submission-bundle",
+                goal: "Generate an evaluator-ready bundle with docs presence, evidence mapping, and recommended review order.",
+                commands: [
+                    "submission openai",
+                    "submission write .",
+                    "submission --json"
+                ],
+                expectedSignals: [
+                    "OpenAI-oriented summary",
+                    "docs and artifact presence checks",
+                    "machine-readable evaluator bundle"
+                ]
             )
         ]
+    }
+
+    private static func resolveSubmissionDirectory(_ rawPath: String?, runtime: BuiltinRuntime) -> URL {
+        guard let rawPath, !rawPath.isEmpty else {
+            return URL(fileURLWithPath: runtime.context.currentDirectory)
+        }
+        if rawPath.hasPrefix("/") {
+            return URL(fileURLWithPath: rawPath, isDirectory: true)
+        }
+        return URL(fileURLWithPath: runtime.context.currentDirectory)
+            .appendingPathComponent(rawPath, isDirectory: true)
+    }
+
+    static func submissionMarkdown(bundle: SubmissionBundle) -> String {
+        var lines: [String] = []
+        lines.append("# \(bundle.product) \(bundle.target) Submission Bundle")
+        lines.append("")
+        lines.append("Generated: `\(bundle.generatedAt)`")
+        lines.append("Repository: `\(bundle.repository)`")
+        lines.append("Compatibility name: `\(bundle.compatibilityName)`")
+        lines.append("")
+        lines.append(bundle.summary)
+        lines.append("")
+        lines.append("## Differentiators")
+        for item in bundle.differentiators {
+            lines.append("- \(item)")
+        }
+        lines.append("")
+        lines.append("## Reviewer Commands")
+        for command in bundle.reviewerCommands {
+            lines.append("- `\(command)`")
+        }
+        lines.append("")
+        lines.append("## Runtime Commands")
+        for command in bundle.runtimeCommands {
+            lines.append("- `\(command)`")
+        }
+        lines.append("")
+        lines.append("## Safety Highlights")
+        for highlight in bundle.safetyHighlights {
+            lines.append("- \(highlight)")
+        }
+        lines.append("")
+        lines.append("## Submission Artifacts")
+        for artifact in bundle.docs {
+            let state = artifact.present ? "present" : "missing"
+            lines.append("- \(artifact.name): \(state) — `\(artifact.path)` — \(artifact.purpose)")
+        }
+        lines.append("")
+        lines.append("## Evidence Map")
+        for item in bundle.evidence {
+            lines.append("- \(item.claim): \(item.evidence)")
+        }
+        lines.append("")
+        lines.append("## Doctor Snapshot")
+        lines.append("- Security mode: `\(bundle.doctor.securityMode)`")
+        lines.append("- Workflows: \(bundle.doctor.workflows)")
+        lines.append("- Skills: \(bundle.doctor.localSkills)")
+        lines.append("- Traces: \(bundle.doctor.traces)")
+        lines.append("- MCP: \(bundle.doctor.mcpConnectedServers)/\(bundle.doctor.mcpConfiguredServers) connected, \(bundle.doctor.mcpDiscoveredTools) discovered tools")
+        lines.append("")
+        lines.append("## Reviewer Walkthroughs")
+        for walkthrough in bundle.catalog.reviewerWalkthroughs {
+            lines.append("- \(walkthrough.name): \(walkthrough.goal)")
+        }
+        return lines.joined(separator: "\n")
     }
 
     private static func diffBuiltin(args: [String], runtime: BuiltinRuntime) -> CommandResult {
@@ -2067,7 +2298,7 @@ enum Builtins {
         Info:
           history [n]       predict [seed]    next
           cards             status            doctor
-          catalog           help
+          catalog           submission        help
           tip               theme [list|set]  graph
 
         Runtime:

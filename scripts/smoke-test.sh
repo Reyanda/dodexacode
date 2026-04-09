@@ -141,6 +141,23 @@ catalog_output="$("$binary" -c 'catalog reviewer')"
 [[ "$catalog_output" == *"[quickstart]"* ]]
 [[ "$catalog_output" == *"[security-baseline]"* ]]
 
+echo "==> submission bundle show"
+submission_output="$("$binary" -c 'submission openai')"
+[[ "$submission_output" == *"# DodexaCode OpenAI Submission Bundle"* ]]
+[[ "$submission_output" == *"## Evidence Map"* ]]
+
+echo "==> submission bundle json"
+submission_json="$("$binary" -c 'submission --json')"
+[[ "$submission_json" == *"\"target\" : \"OpenAI\""* ]]
+[[ "$submission_json" == *"\"mcpBuiltInToolCount\" : 36"* ]]
+
+echo "==> submission bundle write"
+submission_dir="$tmp_dir/submission-bundle"
+write_output="$("$binary" -c "submission write $submission_dir")"
+[[ "$write_output" == *"Wrote OpenAI submission bundle"* ]]
+[[ -f "$submission_dir/dodexacode-openai-bundle.json" ]]
+[[ -f "$submission_dir/dodexacode-openai-bundle.md" ]]
+
 echo "==> attention push and list"
 attn_home="$tmp_dir/attn-home"
 DODEXABASH_HOME="$attn_home" "$binary" -c 'attention push urgent test-alert' >/dev/null

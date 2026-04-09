@@ -1115,6 +1115,46 @@ public final class DodexaMcpServer {
                     let catalog = Builtins.capabilityCatalog(runtime: runtime)
                     return toolResult(toolName: "dodexabash_capability_catalog", payload: ["catalog": .fromEncodable(catalog)])
                 }
+            ),
+            ToolDefinition(
+                name: "dodexabash_submission_bundle",
+                description: "Return an evaluator-ready submission bundle with docs presence, evidence mapping, reviewer commands, safety highlights, doctor report, and capability catalog.",
+                inputSchema: [
+                    "type": .string("object"),
+                    "properties": .object([
+                        "target": .object(["type": .string("string")])
+                    ])
+                ],
+                annotations: [
+                    "readOnlyHint": .bool(true),
+                    "riskLevel": .string("low"),
+                    "tags": .array([.string("submission"), .string("reviewer"), .string("bundle"), .string("mcp")])
+                ],
+                handler: { arguments in
+                    let runtime = BuiltinRuntime(
+                        context: shell.context,
+                        sessionStore: shell.sessionStore,
+                        workspaceBriefer: shell.workspaceBriefer,
+                        workflowLibrary: shell.workflowLibrary,
+                        runtimeStore: shell.runtimeStore,
+                        brain: shell.brain,
+                        researchEngine: shell.researchEngine,
+                        designEngine: shell.designEngine,
+                        skillStore: shell.skillStore,
+                        mcpClient: shell.mcpClient,
+                        blockStore: shell.blockStore,
+                        jobTable: shell.jobTable,
+                        codebaseIndexer: shell.codebaseIndexer,
+                        pipelineExecutor: shell.pipelineExecutor,
+                        themeStore: shell.themeStore
+                    )
+                    let target = arguments["target"]?.stringValue ?? "OpenAI"
+                    let bundle = Builtins.submissionBundle(runtime: runtime, target: target)
+                    return toolResult(toolName: "dodexabash_submission_bundle", payload: [
+                        "bundle": .fromEncodable(bundle),
+                        "markdown": .string(Builtins.submissionMarkdown(bundle: bundle))
+                    ])
+                }
             )
         ]
     }
@@ -1177,6 +1217,9 @@ private extension DodexaMcpServer {
         }
         if lowered.contains("plugin") || lowered.contains("mcp") {
             return ["dodexabash_plugins_list", "dodexabash_workflow_list", "dodexabash_system_snapshot"]
+        }
+        if lowered.contains("submission") || lowered.contains("reviewer") || lowered.contains("openai") || lowered.contains("evaluate") {
+            return ["dodexabash_submission_bundle", "dodexabash_doctor", "dodexabash_capability_catalog"]
         }
         if lowered.contains("markdown") || lowered.contains(".md") || lowered.contains("readme") || lowered.contains("session") {
             return ["dodexabash_md_parse", "dodexabash_md_section", "dodexabash_md_ingest"]

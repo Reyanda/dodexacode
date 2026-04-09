@@ -1137,6 +1137,7 @@ final class TerminalUI {
             PaletteAction(title: "History 10", subtitle: "Recent session commands", command: "history 10", mode: .run),
             PaletteAction(title: "Predict", subtitle: "Show likely next commands", command: "predict", mode: .run),
             PaletteAction(title: "Cards", subtitle: "List workflow cards", command: "cards", mode: .run),
+            PaletteAction(title: "Submission Bundle", subtitle: "Generate evaluator-ready review pack", command: "submission openai", mode: .run),
             PaletteAction(title: "Repair Last", subtitle: "Show suggested fix path", command: "repair last", mode: .run),
             PaletteAction(title: "Prove Last", subtitle: "Show last proof envelope", command: "prove last", mode: .run),
             PaletteAction(title: "Brain Status", subtitle: "Show local brain state", command: "brain status", mode: .run),
@@ -1252,7 +1253,7 @@ final class TerminalUI {
 
     private static let builtinNames: Set<String> = [
         "cd", "pwd", "echo", "env", "export", "unset", "set",
-        "brief", "history", "predict", "workflow", "help", "exit",
+        "brief", "history", "predict", "workflow", "doctor", "catalog", "submission", "help", "exit",
         "artifact", "intent", "lease", "simulate", "prove",
         "entity", "attention", "policy", "world", "uncertainty",
         "repair", "delegate", "replay", "diff"

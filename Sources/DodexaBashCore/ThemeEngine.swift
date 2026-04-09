@@ -121,7 +121,8 @@ public enum Tips {
         "skill run explore-repo lets the brain understand a new codebase",
 
         // MCP
-        "dodexabash exposes 33 tools over MCP via --mcp mode",
+        "submission openai generates an evaluator-ready bundle with docs and evidence",
+        "dodexabash exposes 36 tools over MCP via --mcp mode",
         "External AI agents can call dodexabash tools through JSON-RPC",
 
         // Meta

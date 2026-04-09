@@ -1,7 +1,7 @@
 {
   "name": "dodexacode",
   "version": "0.1.0",
-  "description": "AI-native Swift shell and MCP server with typed primitives, self-diagnostics, capability catalog, workspace context, and scoped security review tooling.",
+  "description": "AI-native Swift shell and MCP server with typed primitives, self-diagnostics, evaluator-ready submission bundles, capability catalog, workspace context, and scoped security review tooling.",
   "author": {
     "name": "DodexaCode Maintainers",
     "email": "techreyanda@gmail.com"
@@ -30,8 +30,8 @@
   },
   "interface": {
     "displayName": "DodexaCode",
-    "shortDescription": "Swift shell and MCP runtime with self-diagnostics and capability catalog.",
-    "longDescription": "DodexaCode is a clean-room Swift shell with typed future-shell primitives, compact workspace briefing, reviewer-facing doctor diagnostics, a machine-readable capability catalog, structured MCP tools, and policy-gated security review workflows.",
+    "shortDescription": "Swift shell and MCP runtime with diagnostics, submission bundles, and capability catalog.",
+    "longDescription": "DodexaCode is a clean-room Swift shell with typed future-shell primitives, compact workspace briefing, reviewer-facing doctor diagnostics, evaluator-ready submission bundle export, a machine-readable capability catalog, structured MCP tools, and policy-gated security review workflows.",
     "developerName": "DodexaCode Maintainers",
     "category": "Coding",
     "capabilities": [
@@ -46,6 +46,7 @@
       "Brief this workspace and suggest the next steps.",
       "Run doctor and summarize local readiness, persistence, and policy posture.",
       "Show the capability catalog reviewer walkthroughs and recommend the strongest path.",
+      "Generate an OpenAI submission bundle and export it as structured evidence.",
       "Run a command through dodexacode and return structured output.",
       "Review a target with passive security mode and show mirror defenses."
     ],

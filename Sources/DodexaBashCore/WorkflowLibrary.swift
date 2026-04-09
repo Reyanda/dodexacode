@@ -98,6 +98,25 @@ public struct WorkflowLibrary {
                     "Release proceeds with unnamed blockers.",
                     "Rollback thinking is absent."
                 ]
+            ),
+            WorkflowCard(
+                slug: "openai-submission-readiness",
+                name: "OpenAI Submission Readiness",
+                domain: "developer-tooling",
+                summary: "Package the product for fast external evaluation with evidence, docs, and explicit review commands.",
+                whenToUse: "Use when handing the tool to OpenAI or any third-party evaluator who needs to verify safety, utility, and install surface quickly.",
+                keyInputs: ["public repo", "plugin manifest", "reviewer commands", "safety posture"],
+                workflow: [
+                    "Generate a current readiness snapshot before writing any evaluation summary.",
+                    "Export a submission bundle that ties claims to evidence and docs already present in the repo.",
+                    "Make the reviewer path explicit: build, smoke test, doctor, catalog, MCP startup."
+                ],
+                outputs: ["submission bundle", "evidence map", "reviewer walkthrough"],
+                redFlags: [
+                    "Claims are made without direct evidence from the runtime or repo.",
+                    "Reviewer commands are scattered across multiple documents.",
+                    "Safety posture is implied instead of stated explicitly."
+                ]
             )
         ])
     }

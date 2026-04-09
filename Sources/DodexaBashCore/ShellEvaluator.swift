@@ -966,7 +966,7 @@ public final class Shell {
         let recentHistory = sessionStore.commandHistory(limit: 5)
         let builtins = [
             "cd", "pwd", "echo", "env", "export", "unset", "set",
-            "brief", "history", "predict", "workflow", "tree", "status",
+            "brief", "history", "predict", "workflow", "tree", "status", "doctor", "catalog", "submission",
             "cards", "next", "help", "exit", "brain", "ask", "theme", "tip", "skill",
             "open", "cat", "show", "create", "tree", "clear", "alias", "function", "source",
             "artifact", "intent", "lease", "simulate", "prove",

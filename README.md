@@ -11,6 +11,7 @@ Repository: `https://github.com/Reyanda/dodexacode`
 Reviewer accelerators:
 - `doctor` runs a local readiness and persistence check.
 - `catalog reviewer` prints guided walkthroughs for the strongest product surfaces.
+- `submission openai` generates an evaluator-ready review bundle from the live repo state.
 - `doctor --json` and `catalog --json` expose machine-readable self-description for automation.
 
 ## Dependency Policy
@@ -54,6 +55,7 @@ The TUI uses raw ANSI rendering and `termios` directly.
 | `md [show\|headings\|section\|ingest] [--json]` | Native Markdown parsing for session docs and handoff files |
 | `doctor [--json]` | Local readiness, persistence, MCP, and policy diagnostics |
 | `catalog [show\|reviewer\|mcp\|security] [--json]` | Capability catalog and guided reviewer walkthroughs |
+| `submission [openai\|show\|write [path]] [--json]` | OpenAI/evaluator submission bundle with docs, evidence, and reviewer commands |
 | `help` | List all builtins |
 | `exit [status]` | Exit the shell |
 
@@ -67,11 +69,12 @@ The TUI uses raw ANSI rendering and `termios` directly.
 
 ### MCP Server
 
-35 structured tools exposed over stdio JSON-RPC via `--mcp`. Tools carry structured envelopes with `traceId`, `generatedAt`, and `futureHints` metadata.
+36 structured tools exposed over stdio JSON-RPC via `--mcp`. Tools carry structured envelopes with `traceId`, `generatedAt`, and `futureHints` metadata.
 
 Notable review-facing tools:
 - `dodexabash_doctor` for readiness, persistence, policy, and MCP checks.
 - `dodexabash_capability_catalog` for machine-readable command domains, security modes, and walkthroughs.
+- `dodexabash_submission_bundle` for evaluator-ready docs presence, evidence mapping, and review order.
 
 ### System Tools
 
@@ -131,6 +134,7 @@ swift build
 ./.build/arm64-apple-macosx/debug/dodexacode -c 'echo hello | tr a-z A-Z'
 ./.build/arm64-apple-macosx/debug/dodexacode -c 'doctor'
 ./.build/arm64-apple-macosx/debug/dodexacode -c 'catalog reviewer'
+./.build/arm64-apple-macosx/debug/dodexacode -c 'submission openai'
 ./.build/arm64-apple-macosx/debug/dodexacode --mcp
 swift run dodexacode --mcp                             # portable MCP startup path
 ./scripts/smoke-test.sh                                # feature and persistence smoke tests
@@ -155,7 +159,7 @@ Sources/
     WorkflowLibrary.swift  # routing templates for operator tasks
     SystemTools.swift      # binary inspection, plugin discovery
     MarkdownNative.swift   # native markdown parsing for session and handoff docs
-    McpServer.swift        # MCP protocol server with 35 tools
+    McpServer.swift        # MCP protocol server with 36 tools
     FutureRuntime.swift    # 17 type families for 20 future-shell primitives
 ```
 

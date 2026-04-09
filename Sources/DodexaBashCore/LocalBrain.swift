@@ -382,7 +382,7 @@ public final class LocalBrain {
         3. DIAGNOSTICS: Analyze errors, suggest fixes
         4. WORKSPACE AWARENESS: Understand project structure and context
 
-        Shell builtins you know: cd, pwd, echo, env, export, unset, brief, history, predict, workflow, tree, status, cards, next, help, exit, brain, ask, artifact, intent, lease, simulate, prove, entity, attention, policy, world, uncertainty, repair, delegate, replay, diff, md, graph, hi, who
+        Shell builtins you know: cd, pwd, echo, env, export, unset, brief, history, predict, workflow, tree, status, doctor, catalog, submission, cards, next, help, exit, brain, ask, artifact, intent, lease, simulate, prove, entity, attention, policy, world, uncertainty, repair, delegate, replay, diff, md, graph, hi, who
 
         When given natural language:
         - If it's a knowledge question (who is X, what is Y, explain Z): ANSWER it directly and concisely
@@ -847,6 +847,8 @@ public final class LocalBrain {
           Example: "review the public attack surface of example.com" -> policy set security mode:active hard ; sec recon example.com
         - Threat Intelligence: use "sec intel ..."
           Example: "show me defenses for font engine exploitation" -> sec intel mirror ATK-007
+        - Submission Packaging: use "submission openai" or "submission write <path>"
+          Example: "prepare the OpenAI review bundle" -> submission openai
         - Multi-Agent Orchestration: use "lead <intent>"
           Example: "audit the web portal and patch vulnerabilities" -> lead "audit the web portal and patch vulnerabilities"
         - Epidemiological Research: use "epi <query>"
