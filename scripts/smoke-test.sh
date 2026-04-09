@@ -131,6 +131,16 @@ echo "==> status overview"
 status_overview="$("$binary" -c 'status')"
 [[ "$status_overview" == *"dodexabash status"* ]]
 
+echo "==> doctor builtin"
+doctor_output="$("$binary" -c 'doctor')"
+[[ "$doctor_output" == *"DodexaCode doctor"* ]]
+[[ "$doctor_output" == *"Checks:"* ]]
+
+echo "==> catalog reviewer"
+catalog_output="$("$binary" -c 'catalog reviewer')"
+[[ "$catalog_output" == *"[quickstart]"* ]]
+[[ "$catalog_output" == *"[security-baseline]"* ]]
+
 echo "==> attention push and list"
 attn_home="$tmp_dir/attn-home"
 DODEXABASH_HOME="$attn_home" "$binary" -c 'attention push urgent test-alert' >/dev/null

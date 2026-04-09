@@ -1047,6 +1047,74 @@ public final class DodexaMcpServer {
                     )
                     return toolResult(toolName: "dodexabash_semantic_diff", payload: ["diff": .fromEncodable(d)])
                 }
+            ),
+            ToolDefinition(
+                name: "dodexabash_doctor",
+                description: "Run a local readiness and persistence check for DodexaCode: state root, memory, workflows, MCP, and policy posture.",
+                inputSchema: [
+                    "type": .string("object"),
+                    "properties": .object([:])
+                ],
+                annotations: [
+                    "readOnlyHint": .bool(true),
+                    "riskLevel": .string("low"),
+                    "tags": .array([.string("diagnostics"), .string("readiness"), .string("reviewer")])
+                ],
+                handler: { _ in
+                    let runtime = BuiltinRuntime(
+                        context: shell.context,
+                        sessionStore: shell.sessionStore,
+                        workspaceBriefer: shell.workspaceBriefer,
+                        workflowLibrary: shell.workflowLibrary,
+                        runtimeStore: shell.runtimeStore,
+                        brain: shell.brain,
+                        researchEngine: shell.researchEngine,
+                        designEngine: shell.designEngine,
+                        skillStore: shell.skillStore,
+                        mcpClient: shell.mcpClient,
+                        blockStore: shell.blockStore,
+                        jobTable: shell.jobTable,
+                        codebaseIndexer: shell.codebaseIndexer,
+                        pipelineExecutor: shell.pipelineExecutor,
+                        themeStore: shell.themeStore
+                    )
+                    let report = Builtins.doctorReport(runtime: runtime)
+                    return toolResult(toolName: "dodexabash_doctor", payload: ["report": .fromEncodable(report)])
+                }
+            ),
+            ToolDefinition(
+                name: "dodexabash_capability_catalog",
+                description: "Return a machine-readable catalog of DodexaCode capabilities: command domains, primitives, security modes, and reviewer walkthroughs.",
+                inputSchema: [
+                    "type": .string("object"),
+                    "properties": .object([:])
+                ],
+                annotations: [
+                    "readOnlyHint": .bool(true),
+                    "riskLevel": .string("low"),
+                    "tags": .array([.string("catalog"), .string("capabilities"), .string("mcp"), .string("reviewer")])
+                ],
+                handler: { _ in
+                    let runtime = BuiltinRuntime(
+                        context: shell.context,
+                        sessionStore: shell.sessionStore,
+                        workspaceBriefer: shell.workspaceBriefer,
+                        workflowLibrary: shell.workflowLibrary,
+                        runtimeStore: shell.runtimeStore,
+                        brain: shell.brain,
+                        researchEngine: shell.researchEngine,
+                        designEngine: shell.designEngine,
+                        skillStore: shell.skillStore,
+                        mcpClient: shell.mcpClient,
+                        blockStore: shell.blockStore,
+                        jobTable: shell.jobTable,
+                        codebaseIndexer: shell.codebaseIndexer,
+                        pipelineExecutor: shell.pipelineExecutor,
+                        themeStore: shell.themeStore
+                    )
+                    let catalog = Builtins.capabilityCatalog(runtime: runtime)
+                    return toolResult(toolName: "dodexabash_capability_catalog", payload: ["catalog": .fromEncodable(catalog)])
+                }
             )
         ]
     }

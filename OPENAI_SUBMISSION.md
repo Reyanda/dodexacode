@@ -9,8 +9,9 @@ Repository: `https://github.com/Reyanda/dodexacode`
 ## Core Capabilities
 
 - Interactive Swift shell with command execution, pipes, redirection, and scripting
-- 33 structured MCP tools exposed over stdio JSON-RPC
+- 35 structured MCP tools exposed over stdio JSON-RPC
 - Workspace briefing, workflow matching, history, prediction, and native Markdown parsing
+- Self-diagnostics with `doctor` and machine-readable product self-description with `catalog`
 - Typed future-shell primitives such as `intent`, `lease`, `simulate`, `prove`, and `replay`
 - Defensive threat-intelligence and mirror-defense analysis for authorized security review
 
@@ -33,6 +34,13 @@ Smoke test:
 
 ```bash
 ./scripts/smoke-test.sh
+```
+
+Reviewer commands:
+
+```bash
+./.build/arm64-apple-macosx/debug/dodexacode -c 'doctor'
+./.build/arm64-apple-macosx/debug/dodexacode -c 'catalog reviewer'
 ```
 
 Run MCP server:

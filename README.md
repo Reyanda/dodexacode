@@ -8,6 +8,11 @@ DodexaCode is a Bash-inspired shell written in Swift, designed as a lightweight 
 
 Repository: `https://github.com/Reyanda/dodexacode`
 
+Reviewer accelerators:
+- `doctor` runs a local readiness and persistence check.
+- `catalog reviewer` prints guided walkthroughs for the strongest product surfaces.
+- `doctor --json` and `catalog --json` expose machine-readable self-description for automation.
+
 ## Dependency Policy
 
 - No third-party Swift packages
@@ -47,6 +52,8 @@ The TUI uses raw ANSI rendering and `termios` directly.
 | `predict [seed] [--json]` | Next-command suggestions |
 | `workflow [list\|show\|match] [--json]` | Workflow cards |
 | `md [show\|headings\|section\|ingest] [--json]` | Native Markdown parsing for session docs and handoff files |
+| `doctor [--json]` | Local readiness, persistence, MCP, and policy diagnostics |
+| `catalog [show\|reviewer\|mcp\|security] [--json]` | Capability catalog and guided reviewer walkthroughs |
 | `help` | List all builtins |
 | `exit [status]` | Exit the shell |
 
@@ -60,7 +67,11 @@ The TUI uses raw ANSI rendering and `termios` directly.
 
 ### MCP Server
 
-33 structured tools exposed over stdio JSON-RPC via `--mcp`. Tools carry structured envelopes with `traceId`, `generatedAt`, and `futureHints` metadata.
+35 structured tools exposed over stdio JSON-RPC via `--mcp`. Tools carry structured envelopes with `traceId`, `generatedAt`, and `futureHints` metadata.
+
+Notable review-facing tools:
+- `dodexabash_doctor` for readiness, persistence, policy, and MCP checks.
+- `dodexabash_capability_catalog` for machine-readable command domains, security modes, and walkthroughs.
 
 ### System Tools
 
@@ -118,6 +129,8 @@ Every command execution automatically:
 swift build
 ./.build/arm64-apple-macosx/debug/dodexacode           # interactive REPL on Apple Silicon
 ./.build/arm64-apple-macosx/debug/dodexacode -c 'echo hello | tr a-z A-Z'
+./.build/arm64-apple-macosx/debug/dodexacode -c 'doctor'
+./.build/arm64-apple-macosx/debug/dodexacode -c 'catalog reviewer'
 ./.build/arm64-apple-macosx/debug/dodexacode --mcp
 swift run dodexacode --mcp                             # portable MCP startup path
 ./scripts/smoke-test.sh                                # feature and persistence smoke tests
@@ -136,13 +149,13 @@ Sources/
     Parser.swift           # recursive descent: conditionals, pipelines, commands
     ShellContext.swift     # environment, lastStatus, working directory
     ShellEvaluator.swift   # main Shell class and evaluation engine
-    Builtins.swift         # all 28 built-in commands
+    Builtins.swift         # shell builtins, diagnostics, and capability catalog
     SessionMemory.swift    # local history, predictions, completion
     WorkspaceBriefing.swift # compact repo context generation
     WorkflowLibrary.swift  # routing templates for operator tasks
     SystemTools.swift      # binary inspection, plugin discovery
     MarkdownNative.swift   # native markdown parsing for session and handoff docs
-    McpServer.swift        # MCP protocol server with 33 tools
+    McpServer.swift        # MCP protocol server with 35 tools
     FutureRuntime.swift    # 17 type families for 20 future-shell primitives
 ```
 

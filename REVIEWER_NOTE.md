@@ -5,8 +5,9 @@
 DodexaCode is a clean-room Swift shell and MCP server for humans and AI systems. It provides:
 
 - a dependency-light local shell,
-- 33 structured MCP tools over stdio JSON-RPC,
+- 35 structured MCP tools over stdio JSON-RPC,
 - typed "future-shell" primitives such as intent, lease, simulate, prove, and replay,
+- reviewer-facing diagnostics via `doctor` and a capability catalog via `catalog`,
 - policy-gated security review features,
 - a defensive threat-intelligence and mirror-defense engine.
 
@@ -36,6 +37,13 @@ Run MCP server:
 ./.build/arm64-apple-macosx/debug/dodexacode --mcp
 # or
 swift run dodexacode --mcp
+```
+
+Fast review commands:
+
+```bash
+./.build/arm64-apple-macosx/debug/dodexacode -c 'doctor'
+./.build/arm64-apple-macosx/debug/dodexacode -c 'catalog reviewer'
 ```
 
 ## Safety Posture

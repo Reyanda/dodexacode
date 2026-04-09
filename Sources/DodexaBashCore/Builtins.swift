@@ -50,6 +50,68 @@ private enum MarkdownLoadResult {
     case failure(CommandResult)
 }
 
+struct DoctorCheck: Encodable {
+    let name: String
+    let ok: Bool
+    let detail: String
+}
+
+struct DoctorReport: Encodable {
+    let product: String
+    let version: String
+    let cwd: String
+    let stateRoot: String
+    let securityMode: String
+    let securitySummary: String
+    let workflows: Int
+    let localSkills: Int
+    let traces: Int
+    let blocks: Int
+    let artifacts: Int
+    let proofs: Int
+    let repairs: Int
+    let mcpConfiguredServers: Int
+    let mcpConnectedServers: Int
+    let mcpDiscoveredTools: Int
+    let checks: [DoctorCheck]
+    let recommendations: [String]
+}
+
+struct CapabilityCategory: Encodable {
+    let name: String
+    let commands: [String]
+}
+
+struct SecurityModeDescriptor: Encodable {
+    let name: String
+    let summary: String
+}
+
+struct ReviewerWalkthrough: Encodable {
+    let name: String
+    let goal: String
+    let commands: [String]
+    let expectedSignals: [String]
+}
+
+struct CapabilityCatalog: Encodable {
+    let product: String
+    let version: String
+    let publicRepository: String
+    let compatibilityName: String
+    let builtinCount: Int
+    let commandCategories: [CapabilityCategory]
+    let futureShellPrimitives: [String]
+    let workflowCards: [String]
+    let securityModes: [SecurityModeDescriptor]
+    let mcpServerTransport: String
+    let mcpBuiltInToolCount: Int
+    let externalMcpConfiguredServers: Int
+    let externalMcpConnectedServers: Int
+    let externalMcpDiscoveredTools: Int
+    let reviewerWalkthroughs: [ReviewerWalkthrough]
+}
+
 enum Builtins {
     static func run(
         command: String,
@@ -108,6 +170,10 @@ enum Builtins {
             return sourceBuiltin(args: args, runtime: runtime)
         case "help":
             return help()
+        case "doctor":
+            return doctorBuiltin(args: args, runtime: runtime)
+        case "catalog":
+            return catalogBuiltin(args: args, runtime: runtime)
         case "exit":
             return exitBuiltin(args: args, context: runtime.context)
         case "artifact":
@@ -244,7 +310,7 @@ enum Builtins {
     private static let knownBuiltins: Set<String> = [
         "cd", "pwd", "echo", "env", "set", "export", "unset",
         "brief", "history", "predict", "workflow", "md", "skill",
-        "alias", "unalias", "function", "source", ".", "help", "exit",
+        "alias", "unalias", "function", "source", ".", "help", "doctor", "catalog", "exit",
         "artifact", "intent", "lease", "simulate", "prove",
         "entity", "attention", "policy", "world", "uncertainty",
         "repair", "delegate", "replay", "diff", "clear", "cls",
@@ -1606,6 +1672,321 @@ enum Builtins {
         return textResult(lines.joined(separator: "\n") + "\n")
     }
 
+    private static func doctorBuiltin(args: [String], runtime: BuiltinRuntime) -> CommandResult {
+        let jsonMode = args.contains("--json")
+        let report = doctorReport(runtime: runtime)
+        if jsonMode {
+            return jsonResult(report)
+        }
+
+        var lines: [String] = []
+        lines.append("DodexaCode doctor")
+        lines.append("  version: \(report.version)")
+        lines.append("  cwd: \(report.cwd)")
+        lines.append("  state root: \(report.stateRoot)")
+        lines.append("  security mode: \(report.securityMode) — \(report.securitySummary)")
+        lines.append("  workflows: \(report.workflows)  skills: \(report.localSkills)  traces: \(report.traces)")
+        lines.append("  blocks: \(report.blocks)  artifacts: \(report.artifacts)  proofs: \(report.proofs)  repairs: \(report.repairs)")
+        lines.append("  external MCP: \(report.mcpConnectedServers)/\(report.mcpConfiguredServers) servers connected, \(report.mcpDiscoveredTools) tools discovered")
+        lines.append("")
+        lines.append("Checks:")
+        for check in report.checks {
+            let marker = check.ok ? "\u{2713}" : "\u{2717}"
+            lines.append("  \(marker) \(check.name): \(check.detail)")
+        }
+        if !report.recommendations.isEmpty {
+            lines.append("")
+            lines.append("Recommendations:")
+            for recommendation in report.recommendations {
+                lines.append("  - \(recommendation)")
+            }
+        }
+        return textResult(lines.joined(separator: "\n") + "\n")
+    }
+
+    private static func catalogBuiltin(args: [String], runtime: BuiltinRuntime) -> CommandResult {
+        let jsonMode = args.contains("--json")
+        let filtered = args.filter { $0 != "--json" }
+        let sub = filtered.first ?? "show"
+        let catalog = capabilityCatalog(runtime: runtime)
+
+        if jsonMode {
+            return jsonResult(catalog)
+        }
+
+        switch sub {
+        case "show", "list":
+            var lines: [String] = []
+            lines.append("DodexaCode capability catalog")
+            lines.append("  product: \(catalog.product) \(catalog.version)")
+            lines.append("  public repo: \(catalog.publicRepository)")
+            lines.append("  compatibility name: \(catalog.compatibilityName)")
+            lines.append("  shell builtins: \(catalog.builtinCount)")
+            lines.append("  workflow cards: \(catalog.workflowCards.count)")
+            lines.append("  MCP server: \(catalog.mcpServerTransport), \(catalog.mcpBuiltInToolCount) built-in tools")
+            lines.append("  external MCP: \(catalog.externalMcpConnectedServers)/\(catalog.externalMcpConfiguredServers) servers connected, \(catalog.externalMcpDiscoveredTools) tools discovered")
+            lines.append("")
+            lines.append("Command domains:")
+            for category in catalog.commandCategories {
+                lines.append("  \(category.name): \(category.commands.joined(separator: ", "))")
+            }
+            lines.append("")
+            lines.append("Future-shell primitives:")
+            lines.append("  " + catalog.futureShellPrimitives.joined(separator: ", "))
+            lines.append("")
+            lines.append("Security modes:")
+            for mode in catalog.securityModes {
+                lines.append("  \(mode.name): \(mode.summary)")
+            }
+            lines.append("")
+            lines.append("Run `catalog reviewer` for a guided walkthrough or `catalog --json` for machine-readable output.")
+            return textResult(lines.joined(separator: "\n") + "\n")
+
+        case "reviewer", "walkthroughs":
+            var lines: [String] = ["DodexaCode reviewer walkthroughs"]
+            for walkthrough in catalog.reviewerWalkthroughs {
+                lines.append("")
+                lines.append("[\(walkthrough.name)] \(walkthrough.goal)")
+                for command in walkthrough.commands {
+                    lines.append("  $ \(command)")
+                }
+                lines.append("  signals: \(walkthrough.expectedSignals.joined(separator: "; "))")
+            }
+            return textResult(lines.joined(separator: "\n") + "\n")
+
+        case "mcp":
+            let text = """
+            DodexaCode MCP surface
+              transport: \(catalog.mcpServerTransport)
+              compatibility name: \(catalog.compatibilityName)
+              built-in tools: \(catalog.mcpBuiltInToolCount)
+              external configured servers: \(catalog.externalMcpConfiguredServers)
+              external connected servers: \(catalog.externalMcpConnectedServers)
+              external discovered tools: \(catalog.externalMcpDiscoveredTools)
+
+            Start the server with:
+              swift run dodexacode --mcp
+
+            """
+            return textResult(text)
+
+        case "security":
+            var lines: [String] = ["DodexaCode security modes"]
+            for mode in catalog.securityModes {
+                lines.append("  \(mode.name): \(mode.summary)")
+            }
+            lines.append("")
+            lines.append("Safe baseline:")
+            lines.append("  $ policy set security mode:passive hard")
+            lines.append("  $ sec intel analyze runtime")
+            lines.append("  $ sec detect system")
+            return textResult(lines.joined(separator: "\n") + "\n")
+
+        default:
+            return textError("catalog [show|reviewer|mcp|security] [--json]\n", status: 1)
+        }
+    }
+
+    static func doctorReport(runtime: BuiltinRuntime) -> DoctorReport {
+        let fileManager = FileManager.default
+        let stateRoot = stateRootPath(runtime: runtime)
+        let statuses = runtime.mcpClient.serverStatus()
+        let configuredServers = statuses.count
+        let connectedServers = statuses.filter(\.connected).count
+        let discoveredTools = runtime.mcpClient.allTools.count
+        let workflows = runtime.workflowLibrary.listCards().count
+        let localSkills = runtime.skillStore.list().count
+        let traces = runtime.sessionStore.recent(limit: 500).count
+        let blocks = runtime.blockStore.count
+        let securityMode = currentSecurityAssessmentMode(runtime: runtime)
+        let stateExists = fileManager.fileExists(atPath: stateRoot)
+        let sessionFile = (stateRoot as NSString).appendingPathComponent("session.json")
+        let runtimeFile = (stateRoot as NSString).appendingPathComponent("runtime.json")
+        let blocksFile = (stateRoot as NSString).appendingPathComponent("blocks.json")
+
+        let checks: [DoctorCheck] = [
+            DoctorCheck(
+                name: "state-root",
+                ok: stateExists,
+                detail: stateExists ? "present at \(stateRoot)" : "missing at \(stateRoot)"
+            ),
+            DoctorCheck(
+                name: "state-writable",
+                ok: fileManager.isWritableFile(atPath: stateRoot),
+                detail: fileManager.isWritableFile(atPath: stateRoot) ? "directory is writable" : "directory is not writable"
+            ),
+            DoctorCheck(
+                name: "session-memory",
+                ok: fileManager.fileExists(atPath: sessionFile),
+                detail: fileManager.fileExists(atPath: sessionFile) ? "\(traces) trace(s) persisted" : "session.json not present yet"
+            ),
+            DoctorCheck(
+                name: "runtime-persistence",
+                ok: fileManager.fileExists(atPath: runtimeFile),
+                detail: fileManager.fileExists(atPath: runtimeFile)
+                    ? "\(runtime.runtimeStore.artifacts.count) artifacts, \(runtime.runtimeStore.proofs.count) proofs"
+                    : "runtime.json not present yet"
+            ),
+            DoctorCheck(
+                name: "block-history",
+                ok: fileManager.fileExists(atPath: blocksFile) || blocks > 0,
+                detail: blocks > 0 ? "\(blocks) block(s) available" : "no block history yet"
+            ),
+            DoctorCheck(
+                name: "workflow-library",
+                ok: workflows >= 4,
+                detail: "\(workflows) built-in workflow card(s)"
+            ),
+            DoctorCheck(
+                name: "local-skill-store",
+                ok: localSkills > 0,
+                detail: "\(localSkills) local skill(s)"
+            ),
+            DoctorCheck(
+                name: "security-governance",
+                ok: true,
+                detail: "mode \(securityMode.rawValue): \(securityMode.summary)"
+            ),
+            DoctorCheck(
+                name: "external-mcp",
+                ok: configuredServers == 0 || connectedServers > 0,
+                detail: "\(connectedServers)/\(configuredServers) configured server(s) connected, \(discoveredTools) tool(s) discovered"
+            )
+        ]
+
+        var recommendations: [String] = []
+        if traces == 0 {
+            recommendations.append("Run `brief .` and `status` once to seed local memory and persisted state.")
+        }
+        if runtime.runtimeStore.activePolicy == nil {
+            recommendations.append("Set an explicit baseline policy with `policy set security mode:passive hard`.")
+        }
+        if configuredServers == 0 {
+            recommendations.append("If you need outbound tool access, add an MCP server with `mcp add <name> <command> [args...]`.")
+        } else if connectedServers == 0 {
+            recommendations.append("Reconnect configured MCP servers with `mcp connect <name>` or restart the shell.")
+        }
+        if runtime.runtimeStore.activeIntent == nil {
+            recommendations.append("Set an intent before multi-step work with `intent set <goal>`.")
+        }
+
+        return DoctorReport(
+            product: "DodexaCode",
+            version: "0.1.0",
+            cwd: runtime.context.currentDirectory,
+            stateRoot: stateRoot,
+            securityMode: securityMode.rawValue,
+            securitySummary: securityMode.summary,
+            workflows: workflows,
+            localSkills: localSkills,
+            traces: traces,
+            blocks: blocks,
+            artifacts: runtime.runtimeStore.artifacts.count,
+            proofs: runtime.runtimeStore.proofs.count,
+            repairs: runtime.runtimeStore.repairPlans.count,
+            mcpConfiguredServers: configuredServers,
+            mcpConnectedServers: connectedServers,
+            mcpDiscoveredTools: discoveredTools,
+            checks: checks,
+            recommendations: recommendations
+        )
+    }
+
+    static func capabilityCatalog(runtime: BuiltinRuntime) -> CapabilityCatalog {
+        let statuses = runtime.mcpClient.serverStatus()
+        let workflows = runtime.workflowLibrary.listCards().map(\.slug)
+        return CapabilityCatalog(
+            product: "DodexaCode",
+            version: "0.1.0",
+            publicRepository: "https://github.com/Reyanda/dodexacode",
+            compatibilityName: "dodexabash",
+            builtinCount: knownBuiltins.count,
+            commandCategories: capabilityCategories(),
+            futureShellPrimitives: [
+                "artifact", "intent", "lease", "simulate", "prove", "entity", "attention",
+                "policy", "world", "uncertainty", "repair", "delegate", "replay", "semantic-diff"
+            ],
+            workflowCards: workflows,
+            securityModes: SecurityAssessmentMode.allCases.map {
+                SecurityModeDescriptor(name: $0.rawValue, summary: $0.summary)
+            },
+            mcpServerTransport: "stdio JSON-RPC",
+            mcpBuiltInToolCount: 35,
+            externalMcpConfiguredServers: statuses.count,
+            externalMcpConnectedServers: statuses.filter(\.connected).count,
+            externalMcpDiscoveredTools: runtime.mcpClient.allTools.count,
+            reviewerWalkthroughs: reviewerWalkthroughs()
+        )
+    }
+
+    private static func stateRootPath(runtime: BuiltinRuntime) -> String {
+        if let override = runtime.context.environment["DODEXABASH_HOME"], !override.isEmpty {
+            return override
+        }
+        return URL(fileURLWithPath: runtime.context.currentDirectory)
+            .appendingPathComponent(".dodexabash", isDirectory: true)
+            .path
+    }
+
+    private static func capabilityCategories() -> [CapabilityCategory] {
+        [
+            CapabilityCategory(name: "shell", commands: ["cd", "pwd", "echo", "env", "export", "unset", "alias", "function", "source", "exit"]),
+            CapabilityCategory(name: "context", commands: ["brief", "history", "predict", "workflow", "md", "status", "doctor", "catalog"]),
+            CapabilityCategory(name: "future-runtime", commands: ["intent", "lease", "simulate", "prove", "attention", "policy", "world", "uncertainty", "repair", "delegate", "replay", "artifact", "entity", "diff semantic"]),
+            CapabilityCategory(name: "integration", commands: ["mcp", "tools", "blocks", "jobs", "git", "index", "browse", "search"]),
+            CapabilityCategory(name: "security", commands: ["sec", "policy set security mode:passive", "policy set security mode:active", "policy set security mode:lab"])
+        ]
+    }
+
+    private static func reviewerWalkthroughs() -> [ReviewerWalkthrough] {
+        [
+            ReviewerWalkthrough(
+                name: "quickstart",
+                goal: "Show workspace context, runtime readiness, and guided next steps in under a minute.",
+                commands: [
+                    "brief .",
+                    "doctor",
+                    "catalog reviewer"
+                ],
+                expectedSignals: [
+                    "compact workspace brief",
+                    "state root and persistence checks",
+                    "curated walkthrough commands"
+                ]
+            ),
+            ReviewerWalkthrough(
+                name: "future-shell",
+                goal: "Demonstrate typed execution primitives and safe preview before mutation.",
+                commands: [
+                    "intent set ship-release",
+                    "simulate swift build",
+                    "prove last",
+                    "replay create"
+                ],
+                expectedSignals: [
+                    "active intent contract",
+                    "predicted effects and risk level",
+                    "proof envelope",
+                    "handoff packet"
+                ]
+            ),
+            ReviewerWalkthrough(
+                name: "security-baseline",
+                goal: "Show policy-gated defensive security analysis without stealth or attribution masking.",
+                commands: [
+                    "policy set security mode:passive hard",
+                    "sec intel analyze runtime",
+                    "sec detect system"
+                ],
+                expectedSignals: [
+                    "passive assessment mode banner",
+                    "mirror-defense analysis",
+                    "request-path or system detection report"
+                ]
+            )
+        ]
+    }
+
     private static func diffBuiltin(args: [String], runtime: BuiltinRuntime) -> CommandResult {
         let jsonMode = args.contains("--json")
         let filtered = args.filter { $0 != "--json" }
@@ -1685,7 +2066,8 @@ enum Builtins {
 
         Info:
           history [n]       predict [seed]    next
-          cards             status            help
+          cards             status            doctor
+          catalog           help
           tip               theme [list|set]  graph
 
         Runtime:
