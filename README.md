@@ -1,6 +1,6 @@
 # DodexaCode
 
-DodexaCode is the public repository for the DodexaBash runtime: a Bash-inspired shell written in Swift, designed as a lightweight operator environment for humans and AI systems. It is clean-room, dependency-free, and includes local memory, workspace briefing, workflow cards, and 20 future-shell primitives as first-class runtime objects.
+DodexaCode is a Bash-inspired shell written in Swift, designed as a lightweight operator environment for humans and AI systems. It is clean-room, dependency-free, and includes local memory, workspace briefing, workflow cards, and 20 future-shell primitives as first-class runtime objects.
 
 ## Dependency Policy
 
@@ -62,7 +62,7 @@ Binary inspection, symbol listing, and disassembly via `otool` and `nm` for asse
 
 ## Future-Shell Primitives
 
-The DodexaBash runtime implements 20 primitives that replace the Unix "strings + exit codes" model with typed, provenance-aware, capability-scoped execution.
+DodexaCode implements 20 primitives that replace the Unix "strings + exit codes" model with typed, provenance-aware, capability-scoped execution.
 
 | Primitive | Builtin | Description |
 | --- | --- | --- |
@@ -121,10 +121,10 @@ swift run dodexacode --mcp                             # portable MCP startup pa
 
 ```
 Sources/
-  DodexaBash/
+  DodexaBash/            # source directory retained for compatibility
     main.swift             # entry point: --mcp, -c, script, or interactive
     TerminalUI.swift       # CotEditor-inspired ANSI TUI with raw termios
-  DodexaBashCore/
+  DodexaBashCore/        # source directory retained for compatibility
     AST.swift              # abstract syntax tree definitions
     Lexer.swift            # tokenization with quotes, escapes, variables
     Parser.swift           # recursive descent: conditionals, pipelines, commands

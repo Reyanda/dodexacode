@@ -31,7 +31,7 @@
   "interface": {
     "displayName": "DodexaCode",
     "shortDescription": "Swift shell and MCP runtime for humans and AI systems.",
-    "longDescription": "DodexaCode packages the DodexaBash runtime: a clean-room Swift shell with typed future-shell primitives, compact workspace briefing, structured MCP tools, and policy-gated security review workflows.",
+    "longDescription": "DodexaCode is a clean-room Swift shell with typed future-shell primitives, compact workspace briefing, structured MCP tools, and policy-gated security review workflows.",
     "developerName": "DodexaCode Maintainers",
     "category": "Coding",
     "capabilities": [
@@ -44,7 +44,7 @@
     "termsOfServiceURL": "https://github.com/Reyanda/dodexacode/blob/main/TERMS.md",
     "defaultPrompt": [
       "Brief this workspace and suggest the next steps.",
-      "Run a command through dodexabash and return structured output.",
+      "Run a command through dodexacode and return structured output.",
       "Review a target with passive security mode and show mirror defenses."
     ],
     "brandColor": "#0369A1"

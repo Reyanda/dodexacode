@@ -2,7 +2,7 @@
 
 ## What This Is
 
-DodexaCode packages the DodexaBash runtime as a clean-room Swift shell and MCP server for humans and AI systems. It provides:
+DodexaCode is a clean-room Swift shell and MCP server for humans and AI systems. It provides:
 
 - a dependency-light local shell,
 - 33 structured MCP tools over stdio JSON-RPC,
@@ -48,6 +48,8 @@ swift run dodexacode --mcp
 
 `swift test` may require full Xcode / XCTest availability on macOS. In this environment, `swift build` and `./scripts/smoke-test.sh` are the verified paths.
 
-## Manual Fields To Replace Before External Submission
+## Public Metadata
 
-The plugin manifest at `.codex-plugin/plugin.json` contains placeholder public URLs and contact email fields because no repository remote or public docs host was configured in this workspace.
+- Repository: `https://github.com/Reyanda/dodexacode`
+- Plugin manifest: `.codex-plugin/plugin.json`
+- CI workflow: `.github/workflows/ci.yml`
