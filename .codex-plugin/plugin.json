@@ -1,0 +1,52 @@
+{
+  "name": "dodexacode",
+  "version": "0.1.0",
+  "description": "AI-native Swift shell and MCP server with typed primitives, workspace context, and scoped security review tooling.",
+  "author": {
+    "name": "DodexaCode Maintainers",
+    "email": "replace-before-submit@example.com"
+  },
+  "homepage": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode",
+  "repository": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode",
+  "license": "MIT",
+  "keywords": [
+    "swift",
+    "shell",
+    "mcp",
+    "developer-tools",
+    "security"
+  ],
+  "mcpServers": {
+    "dodexacode": {
+      "command": "swift",
+      "args": [
+        "run",
+        "--package-path",
+        ".",
+        "dodexabash",
+        "--mcp"
+      ]
+    }
+  },
+  "interface": {
+    "displayName": "DodexaCode",
+    "shortDescription": "Swift shell and MCP runtime for humans and AI systems.",
+    "longDescription": "DodexaCode packages the DodexaBash runtime: a clean-room Swift shell with typed future-shell primitives, compact workspace briefing, structured MCP tools, and policy-gated security review workflows.",
+    "developerName": "DodexaCode Maintainers",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode",
+    "privacyPolicyURL": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode/privacy",
+    "termsOfServiceURL": "https://REPLACE-BEFORE-SUBMIT.example/dodexacode/terms",
+    "defaultPrompt": [
+      "Brief this workspace and suggest the next steps.",
+      "Run a command through dodexabash and return structured output.",
+      "Review a target with passive security mode and show mirror defenses."
+    ],
+    "brandColor": "#0369A1"
+  }
+}
